@@ -381,8 +381,10 @@ export default function PhotoBoothApp({ onReset }: PhotoBoothAppProps) {
 
           <TabsContent value="photostrip" className="mt-6">
             <div className="grid md:grid-cols-2 gap-8">
-              <div className="md:col-span-1">
-                <PhotoStrip photos={photos} color={stripColor} ref={photoStripRef} />
+              <div className="md:col-span-1 flex justify-center">
+                <div className="max-h-[80vh] overflow-y-auto pb-4">
+                  <PhotoStrip photos={photos} color={stripColor} ref={photoStripRef} />
+                </div>
               </div>
 
               <div className="md:col-span-1 space-y-6">

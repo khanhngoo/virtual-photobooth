@@ -26,7 +26,7 @@ const PhotoStrip = forwardRef<HTMLDivElement, PhotoStripProps>(({ photos, color 
   const textColor = getTextColor(color)
 
   return (
-    <div ref={ref} className="relative rounded-lg shadow-lg max-w-md mx-auto" style={{ backgroundColor: color }}>
+    <div ref={ref} className="relative rounded-lg shadow-lg max-w-[300px] mx-auto" style={{ backgroundColor: color }}>
       <div className="p-4 space-y-2">
         <div className="text-center mb-2">
           <h2 className="font-bold text-xl" style={{ color: textColor }}>
@@ -40,7 +40,7 @@ const PhotoStrip = forwardRef<HTMLDivElement, PhotoStripProps>(({ photos, color 
         <div className="space-y-2">
           {photos.map((photo, index) => (
             <div key={index} className="rounded overflow-hidden relative aspect-[4/3]">
-              <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+              <div className="w-full h-full bg-gray-800">
                 {/* Use a div with background image instead of Image component for data URLs */}
                 <div 
                   className="w-full h-full"
