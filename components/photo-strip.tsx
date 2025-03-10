@@ -1,6 +1,7 @@
 "use client"
 
 import { forwardRef } from "react"
+import Image from "next/image"
 
 interface PhotoStripProps {
   photos: string[]
@@ -39,24 +40,19 @@ const PhotoStrip = forwardRef<HTMLDivElement, PhotoStripProps>(({ photos, color 
 
         <div className="space-y-2">
           {photos.map((photo, index) => (
-            <div key={index} className="rounded overflow-hidden">
-              <img 
-                src={photo} 
-                alt={`Photo ${index + 1}`} 
-                className="w-full h-auto"
-                onError={(e) => {
-                  // If image fails to load, show a colored background with text
-                  const target = e.target as HTMLImageElement;
-                  target.style.height = '120px';
-                  target.style.backgroundColor = '#333';
-                  target.style.display = 'flex';
-                  target.style.alignItems = 'center';
-                  target.style.justifyContent = 'center';
-                  target.style.color = '#fff';
-                  target.style.padding = '10px';
-                  target.style.textAlign = 'center';
-                }}
-              />
+            <div key={index} className="rounded overflow-hidden relative aspect-[4/3]">
+              <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                {/* Use a div with background image instead of Image component for data URLs */}
+                <div 
+                  className="w-full h-full"
+                  style={{
+                    backgroundImage: `url(${photo})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                  aria-label={`Photo ${index + 1}`}
+                />
+              </div>
             </div>
           ))}
         </div>

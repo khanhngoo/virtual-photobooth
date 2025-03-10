@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { Camera, Download, Share2, Clock, Home, RefreshCw, Info, QrCode } from "lucide-react"
+import Image from "next/image"
 import PhotoStrip from "@/components/photo-strip"
 import FilterSelector from "@/components/filter-selector"
 import CountdownTimer from "@/components/countdown-timer"
@@ -13,6 +14,7 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import QRCode from "qrcode"
+import Webcam from "react-webcam"
 
 // Add this function to convert DOM node to image
 const domToImage = async (node: HTMLElement): Promise<string> => {
@@ -40,7 +42,7 @@ const domToImage = async (node: HTMLElement): Promise<string> => {
     </svg>`;
     
     // Create an image from the SVG
-    const img = new Image();
+    const img = document.createElement('img');
     const blob = new Blob([data], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     
@@ -74,23 +76,18 @@ export default function PhotoBoothApp({ onReset }: PhotoBoothAppProps) {
   const [showQRCode, setShowQRCode] = useState(false)
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("")
 
-  const webcamRef = useRef<any>(null)
+  const webcamRef = useRef<Webcam>(null)
   const photoStripRef = useRef<HTMLDivElement>(null)
-  const qrCodeCanvasRef = useRef<HTMLCanvasElement>(null)
 
-  // Generate QR code when photo strip is complete
-  useEffect(() => {
-    if (photos.length === 4 && photoStripRef.current) {
-      generateQRCode();
-    }
-  }, [photos]);
-
-  const generateQRCode = async () => {
+  // Define generateQRCode with useCallback to avoid dependency issues
+  const generateQRCode = useCallback(async () => {
     try {
       if (!photoStripRef.current || photos.length !== 4) return;
       
       // Generate a data URL for the photo strip
-      const dataUrl = await domToImage(photoStripRef.current);
+      // Store the dataUrl in a variable that will be used
+      const stripDataUrl = await domToImage(photoStripRef.current);
+      console.log("Generated photo strip data URL:", stripDataUrl.substring(0, 50) + "...");
       
       // In a real app, you would upload this to a server and get a shareable URL
       // For this demo, we'll just create a QR code with some text
@@ -115,7 +112,14 @@ export default function PhotoBoothApp({ onReset }: PhotoBoothAppProps) {
       });
       setQrCodeDataUrl(fallbackUrl);
     }
-  };
+  }, [photos]);
+
+  // Generate QR code when photo strip is complete
+  useEffect(() => {
+    if (photos.length === 4 && photoStripRef.current) {
+      generateQRCode();
+    }
+  }, [photos, generateQRCode]); // Add generateQRCode to dependencies
 
   const capturePhoto = () => {
     if (photos.length >= 4) {
@@ -135,21 +139,26 @@ export default function PhotoBoothApp({ onReset }: PhotoBoothAppProps) {
     }
   }
 
-  const handlePhotoTaken = (photoDataUrl: string) => {
-    setPhotos((prev) => [...prev, photoDataUrl])
-    setIsCountingDown(false)
+  const handlePhotoTaken = (photoDataUrl: string | null) => {
+    if (photoDataUrl) {
+      setPhotos((prev) => [...prev, photoDataUrl])
+      setIsCountingDown(false)
 
-    // If auto-capture is enabled and we haven't taken 4 photos yet, take another one
-    if (autoCapture && photos.length + 1 < 4) {
-      setTimeout(() => {
-        if (webcamRef.current) {
-          capturePhoto()
-        }
-      }, 1500) // Increased delay to 1.5 seconds for better stability
-    }
+      // If auto-capture is enabled and we haven't taken 4 photos yet, take another one
+      if (autoCapture && photos.length + 1 < 4) {
+        setTimeout(() => {
+          if (webcamRef.current) {
+            capturePhoto()
+          }
+        }, 1500) // Increased delay to 1.5 seconds for better stability
+      }
 
-    if (photos.length + 1 >= 4) {
-      setActiveTab("photostrip")
+      if (photos.length + 1 >= 4) {
+        setActiveTab("photostrip")
+      }
+    } else {
+      console.error("Failed to capture photo: photoDataUrl is null")
+      setIsCountingDown(false)
     }
   }
 
@@ -330,21 +339,14 @@ export default function PhotoBoothApp({ onReset }: PhotoBoothAppProps) {
                   <div className="flex flex-col space-y-2">
                     {photos.map((photo, index) => (
                       <div key={index} className="aspect-[4/3] bg-black rounded overflow-hidden">
-                        <img
-                          src={photo}
-                          alt={`Photo ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            // If image fails to load, show a colored background with text
-                            const target = e.target as HTMLImageElement;
-                            target.style.backgroundColor = '#333';
-                            target.style.display = 'flex';
-                            target.style.alignItems = 'center';
-                            target.style.justifyContent = 'center';
-                            target.style.color = '#fff';
-                            target.style.padding = '10px';
-                            target.style.textAlign = 'center';
+                        <div 
+                          className="w-full h-full"
+                          style={{
+                            backgroundImage: `url(${photo})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center'
                           }}
+                          aria-label={`Photo ${index + 1}`}
                         />
                       </div>
                     ))}
@@ -417,11 +419,18 @@ export default function PhotoBoothApp({ onReset }: PhotoBoothAppProps) {
                       <div className="flex flex-col items-center justify-center p-4 bg-background rounded-lg">
                         {qrCodeDataUrl ? (
                           <>
-                            <img
-                              src={qrCodeDataUrl || "/placeholder.svg"}
-                              alt="QR Code"
-                              className="w-32 h-32 mx-auto"
-                            />
+                            <div className="relative w-32 h-32 mx-auto">
+                              <div 
+                                className="w-full h-full"
+                                style={{
+                                  backgroundImage: `url(${qrCodeDataUrl})`,
+                                  backgroundSize: 'contain',
+                                  backgroundPosition: 'center',
+                                  backgroundRepeat: 'no-repeat'
+                                }}
+                                aria-label="QR Code"
+                              />
+                            </div>
                             <p className="text-sm text-center mt-2">Scan to download on your phone</p>
                           </>
                         ) : (
