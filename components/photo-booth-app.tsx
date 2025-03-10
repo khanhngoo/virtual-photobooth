@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react"
-import { Camera, Download, Share2, Clock, Home, RefreshCw, Info, QrCode } from "lucide-react"
+import { Camera, Download, Share2, Clock, Home, RefreshCw, Info, QrCode, FlipHorizontal } from "lucide-react"
 import PhotoStrip from "@/components/photo-strip"
 import FilterSelector from "@/components/filter-selector"
 import CountdownTimer from "@/components/countdown-timer"
@@ -74,6 +74,7 @@ export default function PhotoBoothApp({ onReset }: PhotoBoothAppProps) {
   const [showInstructions, setShowInstructions] = useState(true)
   const [showQRCode, setShowQRCode] = useState(false)
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("")
+  const [mirrored, setMirrored] = useState(true)
 
   const webcamRef = useRef<Webcam>(null)
   const photoStripRef = useRef<HTMLDivElement>(null)
@@ -283,7 +284,7 @@ export default function PhotoBoothApp({ onReset }: PhotoBoothAppProps) {
                     />
                   ) : null}
 
-                  <WebcamCapture ref={webcamRef} filter={selectedFilter} />
+                  <WebcamCapture ref={webcamRef} filter={selectedFilter} mirrored={mirrored} />
                 </div>
 
                 <div className="flex justify-center space-x-2">
@@ -314,14 +315,29 @@ export default function PhotoBoothApp({ onReset }: PhotoBoothAppProps) {
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="auto-capture"
-                    checked={autoCapture}
-                    onCheckedChange={setAutoCapture}
-                    disabled={isCountingDown}
-                  />
-                  <Label htmlFor="auto-capture">Auto-capture all 4 photos</Label>
+                <div className="flex items-center justify-between space-x-2">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="auto-capture"
+                      checked={autoCapture}
+                      onCheckedChange={setAutoCapture}
+                      disabled={isCountingDown}
+                    />
+                    <Label htmlFor="auto-capture">Auto-capture all 4 photos</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="mirror-mode"
+                      checked={mirrored}
+                      onCheckedChange={setMirrored}
+                      disabled={isCountingDown}
+                    />
+                    <Label htmlFor="mirror-mode" className="flex items-center">
+                      <FlipHorizontal className="mr-2 h-4 w-4" />
+                      Mirror mode
+                    </Label>
+                  </div>
                 </div>
 
                 {autoCapture && photos.length === 0 && !isCountingDown && (
@@ -335,7 +351,7 @@ export default function PhotoBoothApp({ onReset }: PhotoBoothAppProps) {
               <div className="md:col-span-1">
                 <div className="bg-muted p-4 rounded-lg h-full">
                   <h3 className="text-lg font-medium mb-3">Preview</h3>
-                  <div className="flex flex-col space-y-2">
+                  <div className="grid grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto p-1">
                     {photos.map((photo, index) => (
                       <div key={index} className="aspect-[4/3] bg-black rounded overflow-hidden">
                         <div 
@@ -352,7 +368,7 @@ export default function PhotoBoothApp({ onReset }: PhotoBoothAppProps) {
                     {Array.from({ length: Math.max(1, 4 - photos.length) }).map((_, index) => (
                       <div
                         key={`empty-${index}`}
-                        className="aspect-[4/3] bg-gray-800 rounded flex items-center justify-center text-gray-500"
+                        className="aspect-[4/3] bg-gray-800 rounded flex items-center justify-center text-gray-500 text-xs"
                       >
                         {photos.length === 0 ? "No photos yet" : `Photo ${photos.length + index + 1}`}
                       </div>

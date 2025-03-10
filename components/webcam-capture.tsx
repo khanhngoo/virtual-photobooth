@@ -5,9 +5,10 @@ import Webcam from "react-webcam"
 
 interface WebcamCaptureProps {
   filter: string
+  mirrored: boolean
 }
 
-const WebcamCapture = forwardRef<Webcam, WebcamCaptureProps>(({ filter }, ref) => {
+const WebcamCapture = forwardRef<Webcam, WebcamCaptureProps>(({ filter, mirrored }, ref) => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null)
   const [isCameraReady, setIsCameraReady] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -169,8 +170,9 @@ const WebcamCapture = forwardRef<Webcam, WebcamCaptureProps>(({ filter }, ref) =
         screenshotFormat="image/jpeg"
         className={`w-full h-full object-cover ${filter !== "normal" ? "hidden" : ""}`}
         onUserMedia={handleUserMedia}
+        mirrored={mirrored}
       />
-      {filter !== "normal" && <canvas ref={canvasRef} className="w-full h-full object-cover" />}
+      {filter !== "normal" && <canvas ref={canvasRef} className={`w-full h-full object-cover ${mirrored ? 'scale-x-[-1]' : ''}`} />}
     </>
   )
 })
