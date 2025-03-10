@@ -351,7 +351,7 @@ export default function PhotoBoothApp({ onReset }: PhotoBoothAppProps) {
               <div className="md:col-span-1">
                 <div className="bg-muted p-4 rounded-lg h-full">
                   <h3 className="text-lg font-medium mb-3">Preview</h3>
-                  <div className="grid grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto p-1">
+                  <div className="flex flex-col space-y-2 max-h-[60vh] overflow-y-auto pr-1">
                     {photos.map((photo, index) => (
                       <div key={index} className="aspect-[4/3] bg-black rounded overflow-hidden">
                         <div 

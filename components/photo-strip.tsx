@@ -26,10 +26,10 @@ const PhotoStrip = forwardRef<HTMLDivElement, PhotoStripProps>(({ photos, color 
   const textColor = getTextColor(color)
 
   return (
-    <div ref={ref} className="relative rounded-lg shadow-lg max-w-[300px] mx-auto" style={{ backgroundColor: color }}>
-      <div className="p-4 space-y-2">
-        <div className="text-center mb-2">
-          <h2 className="font-bold text-xl" style={{ color: textColor }}>
+    <div ref={ref} className="relative rounded-lg shadow-lg w-[250px] mx-auto" style={{ backgroundColor: color }}>
+      <div className="p-3 space-y-2">
+        <div className="text-center mb-1">
+          <h2 className="font-bold text-lg" style={{ color: textColor }}>
             PHOTO BOOTH
           </h2>
           <p className="text-xs opacity-80" style={{ color: textColor }}>
@@ -56,7 +56,7 @@ const PhotoStrip = forwardRef<HTMLDivElement, PhotoStripProps>(({ photos, color 
           ))}
         </div>
 
-        <div className="text-center pt-2">
+        <div className="text-center pt-1">
           <p className="text-xs opacity-80" style={{ color: textColor }}>
             Digital PhotoBooth
           </p>
