@@ -108,7 +108,7 @@ const WebcamCapture = forwardRef<Webcam, WebcamCaptureProps>(({ filter }, ref) =
       }
 
       // Get the webcam stream from the ref
-      const webcamNode = (ref as any).current
+      const webcamNode = (ref as React.RefObject<Webcam>).current
       if (!webcamNode || !webcamNode.stream) return
 
       // Create or get the video element
@@ -141,7 +141,7 @@ const WebcamCapture = forwardRef<Webcam, WebcamCaptureProps>(({ filter }, ref) =
         animationRef.current = null
       }
     }
-  }, [isCameraReady, filter, ref])
+  }, [isCameraReady, filter, ref, applyFilter])
 
   if (hasPermission === false) {
     return (

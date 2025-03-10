@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { Camera, Download, Share2, Clock, Home, RefreshCw, Info, QrCode } from "lucide-react"
-import Image from "next/image"
 import PhotoStrip from "@/components/photo-strip"
 import FilterSelector from "@/components/filter-selector"
 import CountdownTimer from "@/components/countdown-timer"

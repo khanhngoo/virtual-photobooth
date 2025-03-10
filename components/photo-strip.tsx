@@ -1,7 +1,6 @@
 "use client"
 
 import { forwardRef } from "react"
-import Image from "next/image"
 
 interface PhotoStripProps {
   photos: string[]
